@@ -6,7 +6,7 @@ import java.util.Stack;
 public class RandomBoard extends Board {
 
 	private char[][] visitedCells;
-	private Stack pathHistory;
+	private Stack<Coordinates> pathHistory;
 	private Coordinates guideCell;
 	public Random seed = new Random();
 	
@@ -16,7 +16,7 @@ public class RandomBoard extends Board {
 		return pathHistory.isEmpty();
 	}
 	
-	public void fillBoard() //FILLS BOARD WITH 'X' and ' '
+	public void fillBoard() //FILLS BOARD WITH 'X' AND ' '
 	{
 		for(int i=0; i<dim; i++)
 		{
@@ -44,7 +44,7 @@ public class RandomBoard extends Board {
 		}
 	}
 	
-	public void createExit()
+	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER
 	{
 		int borderSelect = seed.nextInt(4);
 		int cell=seed.nextInt(dim-2)+1;
@@ -74,6 +74,9 @@ public class RandomBoard extends Board {
 			guideX=cell;
 			tab[guideY][guideX]='S';
 			guideY--;
+			break;
+		default:
+			guideX=guideY=1;
 			break;
 		}
 		

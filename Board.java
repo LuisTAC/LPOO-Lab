@@ -86,9 +86,9 @@ public class Board{
 	
 	public void printBoard() {
 		
-		for(int i=0; i<getDim(); i++)
+		for(int i=0; i<dim; i++)
 		{
-			for(int j=0; j<getDim(); j++)
+			for(int j=0; j<dim; j++)
 			{
 				if(drgn.getAlive() && drgn.getX()==j&&drgn.getY()==i) System.out.print(drgn.getChr());
 				else if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
