@@ -7,9 +7,8 @@ public class RandomBoard extends Board {
 
 	private char[][] visitedCells;
 	private Stack<Coordinates> pathHistory;
-	private Coordinates guideCell;
+	private int guideX, guideY;
 	public Random seed = new Random();
-	
 	
 	public boolean pathDone()
 	{
@@ -43,37 +42,63 @@ public class RandomBoard extends Board {
 			}
 		}
 	}
+		
+	public boolean checkVisitedCells(int x,int y) //TRUE IF A GIVEN CELL HAS NOWHERE TO GO TO
+	{
+		if(x!=0) {
+			if(visitedCells[y][x-1]!='+') return false; //left
+		}
+		if(x!=((dim-1)/2)-1) {
+			if(visitedCells[y][x+1]!='+') return false; //right
+		}
+		if(y!=0) {
+			if(visitedCells[y-1][x]!='+') return false; //up
+		}
+		if(y!=((dim-1)/2)-1) {
+			if(visitedCells[y+1][x]!='+') return false; //down
+		}
+		return true;
+	}
 	
-	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER
+	public void printVisitedCells() //TODO SÓ PARA TESTES! APAGAR!
+	{
+		System.out.println(" 01234567890");
+		for(int i=0;i<visitedCells.length;i++)
+		{
+			System.out.print(i);
+			for(int j=0;j<visitedCells[i].length;j++)
+			{
+				System.out.print(visitedCells[i][j]);
+			}
+			System.out.println();	
+		}
+	}
+	
+ 	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE GUIDECELL NEXT TO IT
 	{
 		int borderSelect = seed.nextInt(4);
-		int cell=seed.nextInt(dim-2)+1;
-		int guideX,guideY;
+		int cell=seed.nextInt((dim-1)/2);
 		switch (borderSelect)
 		{
 		case 0: //left border
 			guideX = 0;
 			guideY=cell;
-			tab[guideY][guideX]='S';
-			guideX++;
+			tab[guideY*2+1][guideX]='S';
 			break;
 		case 1: //right border
-			guideX = dim-2;
+			guideX = ((dim-1)/2)-1;
 			guideY=cell;
-			tab[guideY][guideX]='S';
-			guideX--;
+			tab[guideY*2+1][guideX*2+2]='S';
 			break;
 		case 2: //up border
 			guideY = 0;
 			guideX=cell;
-			tab[guideY][guideX]='S';
-			guideY++;
+			tab[guideY][guideX*2+1]='S';
 			break;
 		case 3: //down border
-			guideY = dim-2;
+			guideY = ((dim-1)/2)-1;
 			guideX=cell;
-			tab[guideY][guideX]='S';
-			guideY--;
+			tab[guideY*2+2][guideX*2+1]='S';
 			break;
 		default:
 			guideX=guideY=1;
@@ -82,12 +107,60 @@ public class RandomBoard extends Board {
 		
 		visitedCells[guideY][guideX]='+';
 		
-		guideCell = new Coordinates(guideX,guideY);
 		pathHistory = new Stack<Coordinates>();
-		pathHistory.<Coordinates>push(guideCell);
+		pathHistory.<Coordinates>push(new Coordinates(guideX,guideY));
 	}
 	
-public void createRndmBoard(int dim) {
+	public boolean goLeft()
+	{
+		if(visitedCells[guideY][guideX-1]!='+')
+		{
+			tab[(guideY*2)+1][(guideX*2)+1-1]=' ';
+			guideX--;
+			visitedCells[guideY][guideX]='+';
+			pathHistory.push(new Coordinates(guideX,guideY));
+			return true;
+		}
+		return false;
+	}
+	public boolean goRight()
+	{
+		if(visitedCells[guideY][guideX+1]!='+')
+		{
+			tab[(guideY*2)+1][(guideX*2)+1+1]=' ';
+			guideX++;
+			visitedCells[guideY][guideX]='+';
+			pathHistory.push(new Coordinates(guideX,guideY));
+			return true;
+		}
+		return false;
+	}
+	public boolean goUp()
+	{
+		if(visitedCells[guideY-1][guideX]!='+')
+		{
+			tab[(guideY*2)+1-1][(guideX*2)+1]=' ';
+			guideY--;
+			visitedCells[guideY][guideX]='+';
+			pathHistory.push(new Coordinates(guideX,guideY));
+			return true;
+		}
+		return false;
+	}
+	public boolean goDown()
+	{
+		if(visitedCells[guideY+1][guideX]!='+')
+		{
+			tab[(guideY*2)+1+1][(guideX*2)+1]=' ';
+			guideY++;
+			visitedCells[guideY][guideX]='+';
+			pathHistory.push(new Coordinates(guideX,guideY));
+			return true;
+		}
+		return false;
+	}
+	
+	public void createRndmBoard(int dim) {
 		
 		setDim(dim);
 		tab=new char[dim][dim];
@@ -96,20 +169,62 @@ public void createRndmBoard(int dim) {
 		createExit();
 		while(!pathDone())
 		{
-			int dir = seed.nextInt(4);
-			switch(dir)
+			/*//TODO SÓ PARA TESTES! APAGAR
+			System.out.println("X: "+guideX+" Y: "+guideY);
+			printVisitedCells();
+			System.out.println();
+			printBoard();
+			System.out.println();
+			//^*/
+			if(!checkVisitedCells(guideX,guideY))
 			{
-			case 0: //left
-				//TODO <---------------------
-				break;
-			case 1: //right
-				break;
-			case 2: //up
-				break;
-			case 3: //down
-				break;
+				int dir = seed.nextInt(4);
+				switch(dir)
+				{
+				case 0: //left
+					if(guideX!=0)
+					{
+						if(!goLeft()) continue;
+					}
+					break;
+				case 1: //right
+					if(guideX!=((dim-1)/2)-1)
+					{
+						if(!goRight()) continue;
+					}
+					break;
+				case 2: //up
+					if(guideY!=0)
+					{
+						if(!goUp()) continue;
+					}
+					break;
+				case 3: //down
+					if(guideY!=((dim-1)/2)-1)
+					{
+						if(!goDown()) continue;
+					}
+					break;
 				}
+			}
+			else
+			{
+				guideX=pathHistory.peek().getX();
+				guideY=pathHistory.peek().getY();
+				pathHistory.pop();
+			}
 		}
 	}
-	
+	public void createHero()
+	{
+		
+	}
+	public void createSword()
+	{
+		
+	}
+	public void createDragon()
+	{
+		
+	}
 }

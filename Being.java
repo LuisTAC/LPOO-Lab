@@ -7,8 +7,7 @@ public class Being {
 	
 	Being(char chr, int x, int y) {
 		this.chr=chr;
-		this.crd.setX(x);
-		this.crd.setY(y);
+		crd = new Coordinates(x,y);
 	}
 
 	public int getX() {

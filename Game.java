@@ -11,6 +11,7 @@ public class Game {
 		while(true) {
 			System.out.print("Select an option:\n[1]Default Level\n[2]Random Level\n[0]Exit\n>");
 			String input = scanner.nextLine();
+			System.out.println();
 			switch(input) {
 			case "1":dfltLvl();
 				break;
@@ -31,11 +32,15 @@ public class Game {
 		jogo.printBoard();
 		while(!jogo.getEndW() && !jogo.getEndL())
 		{
-			System.out.println();
 			jogo.makeAMove();
+			if(jogo.getEndQ()) break;
 			jogo.printBoard();
 		}
 		if(jogo.getEndW()) System.out.println("You've found the exit!\n");
+		else if(jogo.getEndQ()) {
+			System.out.println("You've given up. Returning to main menu\n");
+			return;
+		}
 		else if(jogo.getEndL()) {
 			System.out.println("You're dead! Game Over!\nTry again?(y for yes or anything else for no)");
 			String input = scanner.nextLine();
@@ -45,11 +50,19 @@ public class Game {
 	
 	public static void rndmLvl() {
 		
-		System.out.println("You have selected the random level! \n");
-		System.out.println("Please select the dimension of the board you pretend to play in: \n");
+		System.out.print("Please select the size of the board you want to play in (odd number):");
 		
 		String input = scanner.nextLine();
-		int dimension = Integer.parseInt(input);
+		int size = Integer.parseInt(input);
+		if(size%2==0)
+		{
+			size++;
+			System.out.println("Not an odd number! Switching to "+size);
+		}
+		RandomBoard jogo= new RandomBoard();
+		jogo.createRndmBoard(size);
+		
+		jogo.printBoard();
 	}
 
 }

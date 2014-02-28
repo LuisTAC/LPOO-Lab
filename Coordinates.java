@@ -24,4 +24,17 @@ public class Coordinates
 		this.y = y;
 	}
 	
+	public void moveUp() {
+		y--;
+	}
+	public void moveDwn() {
+		y++;
+	}
+	public void moveLft() {
+		x--;
+	}
+	public void moveRght() {
+		x++;
+	}
+	
 }

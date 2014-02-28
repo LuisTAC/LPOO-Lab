@@ -1,7 +1,6 @@
 package game;
 
 import java.util.Random;
-import java.util.Stack;
 
 public class Board{
 
@@ -9,13 +8,16 @@ public class Board{
 	protected char[][] tab;
 	private Hero hero;
 	private Dragon drgn;
-	private boolean endW=false, endL=false;
+	private boolean endW=false, endL=false, endQ=false;
 	
 	public boolean getEndW() {
 		return endW;
 	}
 	public boolean getEndL() {
 		return endL;
+	}
+	public boolean getEndQ() {
+		return endQ;
 	}
 	public Being getHero() {
 		return hero;
@@ -67,6 +69,36 @@ public class Board{
 
 	}
 	
+	public void checkDragonGlobal()
+	{
+		if(atDragon())
+		{
+			if(!hero.getHasSwrd())
+			{
+				endL=true;
+				hero.setAlive();
+			}
+			else if(hero.getHasSwrd())
+			{
+				drgn.setAlive();
+			}
+		}
+		else if(drgn.getAlive()) 
+		{
+			//COND TO MAKE DRAGON = 'F' WHEN ON TOP OF SWORD
+			if(!drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]=='E')
+			{
+				drgn.setOnSwrd(true);
+				drgn.setChr('F');
+			}
+			else if(drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]!= 'E')
+			{
+				drgn.setOnSwrd(false);
+				drgn.setChr('D');
+			}
+		}
+	}
+	
 	public void createDfltBoard() {
 		tab = new char[][]
 				{{'X','X','X','X','X','X','X','X','X','X'},
@@ -90,58 +122,39 @@ public class Board{
 		{
 			for(int j=0; j<dim; j++)
 			{
+//TODO COMENTAR PARA TESTES
 				if(drgn.getAlive() && drgn.getX()==j&&drgn.getY()==i) System.out.print(drgn.getChr());
 				else if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
 				else System.out.print(tab[i][j]);
+//^
+				//DESCOMENTAR System.out.print(tab[i][j]);
 			}
 			System.out.println();
 		}
+		System.out.println();
 		
 	}
 
 	public void makeAMove() {
-		System.out.print("(2,4,6,8 to move):");
+		System.out.print("(2,4,6,8 to move; 0 to quit):");
 		String input = Game.scanner.nextLine();
+		System.out.println();
 		if(!moveHero(input)) {
 			System.out.println("Invalid input!\n");
 		}
 		else
 		{
-			while(!moveDrgn())
-			{}
-			if(atDragon())
-			{
-				if(!hero.getHasSwrd())
-				{
-					endL=true;
-					hero.setAlive();
-				}
-				else if(hero.getHasSwrd())
-				{
-					drgn.setAlive();
-				}
-			}
-			else if(drgn.getAlive()) 
-			{
-				//COND TO MAKE DRAGON = 'F' WHEN ON TOP OF SWORD
-				if(!drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]=='E')
-				{
-					drgn.setOnSwrd(true);
-					drgn.setChr('F');
-				}
-				else if(drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]!= 'E')
-				{
-					drgn.setOnSwrd(false);
-					drgn.setChr('D');
-				}
-
-			}
+			if(endQ) return;
+			checkDragonGlobal();
+			while(!moveDrgn()) {}
+			checkDragonGlobal();
 		}
-		
-
 	}
 	public boolean moveHero(String dir) {
 		switch(dir) {
+		case "0":
+			endQ=true;
+			return true;
 		case "2":
 			if(tab[hero.getY()+1][hero.getX()] != 'X')
 			{
