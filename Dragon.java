@@ -4,8 +4,8 @@ public class Dragon extends Being{
 
 	private boolean onSwrd = false;
 	
-	Dragon(char chr, int x, int y) {
-		super(chr, x, y);
+	Dragon(int x, int y) {
+		super('D', x, y);
 	}
 
 	public boolean getOnSwrd() {

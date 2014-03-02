@@ -4,8 +4,8 @@ public class Hero extends Being{
 
 	private boolean hasSwrd = false;
 	
-	Hero(char chr, int x, int y) {
-		super(chr, x, y);
+	Hero(int x, int y) {
+		super('H', x, y);
 	}
 	
 

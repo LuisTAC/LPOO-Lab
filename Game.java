@@ -25,10 +25,8 @@ public class Game {
 		}
 	}
 
-	public static void dfltLvl() {
-		
-		Board jogo = new Board();
-		jogo.createDfltBoard();
+	public static void play(Board jogo)
+	{
 		jogo.printBoard();
 		while(!jogo.getEndW() && !jogo.getEndL())
 		{
@@ -48,6 +46,13 @@ public class Game {
 		}
 	}
 	
+	public static void dfltLvl() {
+		
+		Board jogo = new Board();
+		jogo.createDfltBoard();
+		play(jogo);
+	}
+	
 	public static void rndmLvl() {
 		
 		System.out.print("Please select the size of the board you want to play in (odd number):");
@@ -61,8 +66,7 @@ public class Game {
 		}
 		RandomBoard jogo= new RandomBoard();
 		jogo.createRndmBoard(size);
-		
-		jogo.printBoard();
+		play(jogo);
 	}
 
 }

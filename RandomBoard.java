@@ -60,7 +60,7 @@ public class RandomBoard extends Board {
 		return true;
 	}
 	
-	public void printVisitedCells() //TODO SÓ PARA TESTES! APAGAR!
+/*	public void printVisitedCells() //TODO SÓ PARA TESTES! APAGAR!
 	{
 		System.out.println(" 01234567890");
 		for(int i=0;i<visitedCells.length;i++)
@@ -73,8 +73,9 @@ public class RandomBoard extends Board {
 			System.out.println();	
 		}
 	}
+*/
 	
- 	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE GUIDECELL NEXT TO IT
+ 	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
 	{
 		int borderSelect = seed.nextInt(4);
 		int cell=seed.nextInt((dim-1)/2);
@@ -160,6 +161,41 @@ public class RandomBoard extends Board {
 		return false;
 	}
 	
+	public boolean createHero()
+	{
+		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(dim-2)+1;
+		if(tab[y][x]==' ')
+		{
+			hero = new Hero(x,y);
+			return true;
+		}
+		return false;
+	}
+	public boolean createDragon()
+	{
+		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(dim-2)+1;
+		if(tab[y][x]==' ' && (x!=hero.getX() || y!=hero.getY()))
+		{
+			drgn = new Dragon(x,y);
+			if(atDragon()) return false;
+			return true;
+		}
+		return false;
+	}	
+	public boolean createSword()
+	{
+		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(dim-2)+1;
+		if(tab[y][x]==' ' && (x!=hero.getX() || y!=hero.getY())
+				&& (x!=drgn.getX() || y!=drgn.getY()))
+		{
+			tab[y][x]='E';
+			return true;
+		}
+		return false;
+	}
 	public void createRndmBoard(int dim) {
 		
 		setDim(dim);
@@ -214,17 +250,8 @@ public class RandomBoard extends Board {
 				pathHistory.pop();
 			}
 		}
-	}
-	public void createHero()
-	{
-		
-	}
-	public void createSword()
-	{
-		
-	}
-	public void createDragon()
-	{
-		
+		while(!createHero()){}
+		while(!createDragon()){}
+		while(!createSword()){}
 	}
 }

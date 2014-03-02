@@ -6,8 +6,8 @@ public class Board{
 
 	protected int dim=10;
 	protected char[][] tab;
-	private Hero hero;
-	private Dragon drgn;
+	protected Hero hero;
+	protected Dragon drgn;
 	private boolean endW=false, endL=false, endQ=false;
 	
 	public boolean getEndW() {
@@ -111,23 +111,19 @@ public class Board{
                 {'X',' ','X','X',' ','X',' ','X',' ','X'},
                 {'X','E','X','X',' ',' ',' ',' ',' ','X'},
                 {'X','X','X','X','X','X','X','X','X','X'}};
-		hero = new Hero('H',1,1);
-		drgn = new Dragon('D',1,3);
+		hero = new Hero(1,1);
+		drgn = new Dragon(1,3);
 	}
-	
-	
+		
 	public void printBoard() {
 		
 		for(int i=0; i<dim; i++)
 		{
 			for(int j=0; j<dim; j++)
 			{
-//TODO COMENTAR PARA TESTES
 				if(drgn.getAlive() && drgn.getX()==j&&drgn.getY()==i) System.out.print(drgn.getChr());
 				else if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
 				else System.out.print(tab[i][j]);
-//^
-				//DESCOMENTAR System.out.print(tab[i][j]);
 			}
 			System.out.println();
 		}
@@ -140,7 +136,8 @@ public class Board{
 		String input = Game.scanner.nextLine();
 		System.out.println();
 		if(!moveHero(input)) {
-			System.out.println("Invalid input!\n");
+			System.out.println("Invalid input!");
+			Game.scanner.nextLine();
 		}
 		else
 		{
