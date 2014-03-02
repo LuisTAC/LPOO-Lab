@@ -1,15 +1,18 @@
 package game;
 
-public class Being {
+public class Piece{
 	private Coordinates crd;
 	private char chr;
-	private boolean alive = true;
 	
-	Being(char chr, int x, int y) {
-		this.chr=chr;
+	Piece(char chr, int x, int y) {
+		this.chr = chr;
 		crd = new Coordinates(x,y);
 	}
-
+	Piece(Piece piece) {
+		this.chr = piece.getChr();
+		this.crd = new Coordinates(piece.getCrdnts());
+	}
+	
 	public int getX() {
 		return crd.getX();
 	}
@@ -19,9 +22,8 @@ public class Being {
 	public char getChr() {
 		return chr;
 	}
-	public boolean getAlive()
-	{
-		return alive;
+	public Coordinates getCrdnts() {
+		return crd;
 	}
 	
 	public void setChr(char chr) {
@@ -31,10 +33,6 @@ public class Being {
 	{
 		this.crd.setX(x);
 		this.crd.setY(y);
-	}
-	public void setAlive()
-	{
-		alive=false;
 	}
 	
  	public void moveDwn() {

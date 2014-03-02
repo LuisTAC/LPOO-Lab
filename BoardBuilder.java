@@ -3,8 +3,9 @@ package game;
 import java.util.Random;
 import java.util.Stack;
 
-public class RandomBoard extends Board {
+public class BoardBuilder {
 
+	private Board prod = new Board();
 	private char[][] visitedCells;
 	private Stack<Coordinates> pathHistory;
 	private int guideX, guideY;
@@ -17,22 +18,21 @@ public class RandomBoard extends Board {
 	
 	public void fillBoard() //FILLS BOARD WITH 'X' AND ' '
 	{
-		for(int i=0; i<dim; i++)
+		for(int i=0; i<prod.dim; i++)
 		{
-			for(int j=0; j<dim; j++)
+			for(int j=0; j<prod.dim; j++)
 			{
 				if(i%2 != 0 && j%2!=0)
 				{
-					tab[i][j] = ' ';
+					prod.tab[i][j] = ' ';
 				}
-				else tab[i][j] = 'X';
+				else prod.tab[i][j] = 'X';
 			}
 		}
 	}
-	
 	public void fillVisitedCells() //CREATES AND FILLS THE VISITED CELLS ARRAY
 	{
-		visitedCells = new char[(dim-1)/2][(dim-1)/2];
+		visitedCells = new char[(prod.dim-1)/2][(prod.dim-1)/2];
 		
 		for(int i=0; i<visitedCells.length;i++)
 		{
@@ -42,24 +42,22 @@ public class RandomBoard extends Board {
 			}
 		}
 	}
-		
 	public boolean checkVisitedCells(int x,int y) //TRUE IF A GIVEN CELL HAS NOWHERE TO GO TO
 	{
 		if(x!=0) {
 			if(visitedCells[y][x-1]!='+') return false; //left
 		}
-		if(x!=((dim-1)/2)-1) {
+		if(x!=((prod.dim-1)/2)-1) {
 			if(visitedCells[y][x+1]!='+') return false; //right
 		}
 		if(y!=0) {
 			if(visitedCells[y-1][x]!='+') return false; //up
 		}
-		if(y!=((dim-1)/2)-1) {
+		if(y!=((prod.dim-1)/2)-1) {
 			if(visitedCells[y+1][x]!='+') return false; //down
 		}
 		return true;
 	}
-	
 /*	public void printVisitedCells() //TODO SÓ PARA TESTES! APAGAR!
 	{
 		System.out.println(" 01234567890");
@@ -78,28 +76,28 @@ public class RandomBoard extends Board {
  	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
 	{
 		int borderSelect = seed.nextInt(4);
-		int cell=seed.nextInt((dim-1)/2);
+		int cell=seed.nextInt((prod.dim-1)/2);
 		switch (borderSelect)
 		{
 		case 0: //left border
 			guideX = 0;
 			guideY=cell;
-			tab[guideY*2+1][guideX]='S';
+			prod.tab[guideY*2+1][guideX]='S';
 			break;
 		case 1: //right border
-			guideX = ((dim-1)/2)-1;
+			guideX = ((prod.dim-1)/2)-1;
 			guideY=cell;
-			tab[guideY*2+1][guideX*2+2]='S';
+			prod.tab[guideY*2+1][guideX*2+2]='S';
 			break;
 		case 2: //up border
 			guideY = 0;
 			guideX=cell;
-			tab[guideY][guideX*2+1]='S';
+			prod.tab[guideY][guideX*2+1]='S';
 			break;
 		case 3: //down border
-			guideY = ((dim-1)/2)-1;
+			guideY = ((prod.dim-1)/2)-1;
 			guideX=cell;
-			tab[guideY*2+2][guideX*2+1]='S';
+			prod.tab[guideY*2+2][guideX*2+1]='S';
 			break;
 		default:
 			guideX=guideY=1;
@@ -116,7 +114,7 @@ public class RandomBoard extends Board {
 	{
 		if(visitedCells[guideY][guideX-1]!='+')
 		{
-			tab[(guideY*2)+1][(guideX*2)+1-1]=' ';
+			prod.tab[(guideY*2)+1][(guideX*2)+1-1]=' ';
 			guideX--;
 			visitedCells[guideY][guideX]='+';
 			pathHistory.push(new Coordinates(guideX,guideY));
@@ -128,7 +126,7 @@ public class RandomBoard extends Board {
 	{
 		if(visitedCells[guideY][guideX+1]!='+')
 		{
-			tab[(guideY*2)+1][(guideX*2)+1+1]=' ';
+			prod.tab[(guideY*2)+1][(guideX*2)+1+1]=' ';
 			guideX++;
 			visitedCells[guideY][guideX]='+';
 			pathHistory.push(new Coordinates(guideX,guideY));
@@ -140,7 +138,7 @@ public class RandomBoard extends Board {
 	{
 		if(visitedCells[guideY-1][guideX]!='+')
 		{
-			tab[(guideY*2)+1-1][(guideX*2)+1]=' ';
+			prod.tab[(guideY*2)+1-1][(guideX*2)+1]=' ';
 			guideY--;
 			visitedCells[guideY][guideX]='+';
 			pathHistory.push(new Coordinates(guideX,guideY));
@@ -152,7 +150,7 @@ public class RandomBoard extends Board {
 	{
 		if(visitedCells[guideY+1][guideX]!='+')
 		{
-			tab[(guideY*2)+1+1][(guideX*2)+1]=' ';
+			prod.tab[(guideY*2)+1+1][(guideX*2)+1]=' ';
 			guideY++;
 			visitedCells[guideY][guideX]='+';
 			pathHistory.push(new Coordinates(guideX,guideY));
@@ -163,43 +161,44 @@ public class RandomBoard extends Board {
 	
 	public boolean createHero()
 	{
-		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(dim-2)+1;
-		if(tab[y][x]==' ')
+		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(prod.dim-2)+1;
+		if(prod.tab[y][x]==' ')
 		{
-			hero = new Hero(x,y);
+			prod.hero = new Hero(x,y);
 			return true;
 		}
 		return false;
 	}
 	public boolean createDragon()
 	{
-		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(dim-2)+1;
-		if(tab[y][x]==' ' && (x!=hero.getX() || y!=hero.getY()))
+		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(prod.dim-2)+1;
+		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
 		{
-			drgn = new Dragon(x,y);
-			if(atDragon()) return false;
+			prod.drgn = new Dragon(x,y);
+			if(prod.atDragon()) return false;
 			return true;
 		}
 		return false;
 	}	
 	public boolean createSword()
 	{
-		int x = seed.nextInt(dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(dim-2)+1;
-		if(tab[y][x]==' ' && (x!=hero.getX() || y!=hero.getY())
-				&& (x!=drgn.getX() || y!=drgn.getY()))
+		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = seed.nextInt(prod.dim-2)+1;
+		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
+				&& (x!=prod.drgn.getX() || y!=prod.drgn.getY()))
 		{
-			tab[y][x]='E';
+			prod.swrd = new Sword(x,y);
 			return true;
 		}
 		return false;
 	}
-	public void createRndmBoard(int dim) {
 		
-		setDim(dim);
-		tab=new char[dim][dim];
+	public void build(int dim) {
+		
+		prod.setDim(dim);
+		prod.tab=new char[dim][dim];
 		fillBoard();
 		fillVisitedCells();
 		createExit();
@@ -253,5 +252,10 @@ public class RandomBoard extends Board {
 		while(!createHero()){}
 		while(!createDragon()){}
 		while(!createSword()){}
+	}
+
+	public Board getProduct()
+	{
+		return prod;
 	}
 }

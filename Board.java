@@ -8,7 +8,21 @@ public class Board{
 	protected char[][] tab;
 	protected Hero hero;
 	protected Dragon drgn;
+	protected Sword swrd;
 	private boolean endW=false, endL=false, endQ=false;
+	
+	Board() {}
+	Board(Board board)
+	{
+		this.dim = board.dim;
+		this.tab = board.tab.clone();
+		hero = new Hero(board.hero);
+		drgn = new Dragon(board.drgn);
+		swrd = new Sword(board.swrd);
+		this.endW = board.getEndW();
+		this.endL = board.getEndL();
+		this.endQ = board.getEndQ();
+	}
 	
 	public boolean getEndW() {
 		return endW;
@@ -19,16 +33,32 @@ public class Board{
 	public boolean getEndQ() {
 		return endQ;
 	}
-	public Being getHero() {
+	public Hero getHero() {
 		return hero;
 	}
-	public Being getDrgn() {
+	public Dragon getDrgn() {
 		return drgn;
 	}
-
+	public Sword getSword() {
+		return swrd;
+	}
+	public char[][] getTab() {
+		return tab;
+	}
+	
 	public void setDim(int dim) {
 		this.dim = dim;
 	}
+	public void setHero(Hero hero) {
+		this.hero=hero;
+	}
+	public void setDragon(Dragon dragon) {
+		this.drgn=dragon;
+	}
+	public void setSword(Sword sword) {
+		this.swrd=sword;
+	}
+	
 	
 	public boolean atExit(int x, int y) {
 		if(tab[y][x] == 'S')
@@ -39,10 +69,9 @@ public class Board{
 	}
 	public void atSwrd()
 	{
-		if(tab[hero.getY()][hero.getX()] == 'E')
+		if(hero.getY()==swrd.getY() && hero.getX()==swrd.getX())
 		{
 			hero.setChr('A');
-			tab[hero.getY()][hero.getX()] = ' ';
 			hero.setHasSwrd();
 		}
 	}
@@ -76,22 +105,22 @@ public class Board{
 			if(!hero.getHasSwrd())
 			{
 				endL=true;
-				hero.setAlive();
+				hero.setAlive(false);
 			}
 			else if(hero.getHasSwrd())
 			{
-				drgn.setAlive();
+				drgn.setAlive(false);
 			}
 		}
 		else if(drgn.getAlive()) 
 		{
 			//COND TO MAKE DRAGON = 'F' WHEN ON TOP OF SWORD
-			if(!drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]=='E')
+			if(!drgn.getOnSwrd() && drgn.getY()==swrd.getY() && drgn.getX()==swrd.getX())
 			{
 				drgn.setOnSwrd(true);
 				drgn.setChr('F');
 			}
-			else if(drgn.getOnSwrd() && tab[drgn.getY()][drgn.getX()]!= 'E')
+			else if(drgn.getOnSwrd() && (drgn.getY()!=swrd.getY() || drgn.getX()!=swrd.getX()))
 			{
 				drgn.setOnSwrd(false);
 				drgn.setChr('D');
@@ -109,10 +138,11 @@ public class Board{
                 {'X',' ',' ',' ',' ',' ',' ','X',' ','S'},
                 {'X',' ','X','X',' ','X',' ','X',' ','X'},
                 {'X',' ','X','X',' ','X',' ','X',' ','X'},
-                {'X','E','X','X',' ',' ',' ',' ',' ','X'},
+                {'X',' ','X','X',' ',' ',' ',' ',' ','X'},
                 {'X','X','X','X','X','X','X','X','X','X'}};
 		hero = new Hero(1,1);
 		drgn = new Dragon(1,3);
+		swrd = new Sword(1,8);
 	}
 		
 	public void printBoard() {
@@ -123,6 +153,7 @@ public class Board{
 			{
 				if(drgn.getAlive() && drgn.getX()==j&&drgn.getY()==i) System.out.print(drgn.getChr());
 				else if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
+				else if(!hero.getHasSwrd() && swrd.getX()==j && swrd.getY()==i) System.out.print(swrd.getChr());
 				else System.out.print(tab[i][j]);
 			}
 			System.out.println();
@@ -131,22 +162,6 @@ public class Board{
 		
 	}
 
-	public void makeAMove() {
-		System.out.print("(2,4,6,8 to move; 0 to quit):");
-		String input = Game.scanner.nextLine();
-		System.out.println();
-		if(!moveHero(input)) {
-			System.out.println("Invalid input!");
-			Game.scanner.nextLine();
-		}
-		else
-		{
-			if(endQ) return;
-			checkDragonGlobal();
-			while(!moveDrgn()) {}
-			checkDragonGlobal();
-		}
-	}
 	public boolean moveHero(String dir) {
 		switch(dir) {
 		case "0":
@@ -238,28 +253,28 @@ public class Board{
 		case 0:
 			return true;
 		case 1:
-			if(tab[drgn.getY()][drgn.getX()-1] != 'X')
+			if(tab[drgn.getY()][drgn.getX()-1] != 'X' && tab[drgn.getY()][drgn.getX()-1] != 'S')
 			{
 				drgn.moveLft();
 				return true;
 			}
 			return false;
 		case 2:
-			if(tab[drgn.getY()][drgn.getX()+1] != 'X')
+			if(tab[drgn.getY()][drgn.getX()+1] != 'X' && tab[drgn.getY()][drgn.getX()+1] != 'S')
 			{
 				drgn.moveRght();
 				return true;
 			}
 			return false;
 		case 3:
-			if(tab[drgn.getY()-1][drgn.getX()] != 'X')
+			if(tab[drgn.getY()-1][drgn.getX()] != 'X' && tab[drgn.getY()-1][drgn.getX()] != 'S')
 			{
 				drgn.moveUp();
 				return true;
 			}
 			return false;
 		case 4:
-			if(tab[drgn.getY()+1][drgn.getX()] != 'X')
+			if(tab[drgn.getY()+1][drgn.getX()] != 'X' && tab[drgn.getY()+1][drgn.getX()] != 'S')
 			{
 				drgn.moveDwn();
 				return true;
@@ -268,6 +283,7 @@ public class Board{
 			default: return false;
 		}
 	}
+
 }
 
 
