@@ -1,12 +1,14 @@
 package game;
 
 import java.util.Scanner;
+import java.util.Random;
 
 
 public class Game {
 
 	private static Board mainBoard;
 	private static Board backupBoard;
+	public static Random seed = new Random();
 	
 	public static Scanner scanner = new Scanner( System.in );
 	
@@ -28,7 +30,26 @@ public class Game {
 		}
 	}
 
-	public static void makeAMove() {
+	public static void makeAMoveMovingDragon() {
+		System.out.print("(2,4,6,8 to move; 0 to quit):");
+		String input = Game.scanner.nextLine();
+		System.out.println();
+		if(!mainBoard.moveHero(input)) {
+			System.out.println("Invalid input!");
+			Game.scanner.nextLine();
+		}
+		else
+		{
+			if(mainBoard.getEndQ()) return;
+			if(mainBoard.drgn.getAlive()) {
+				mainBoard.checkDragonGlobal();
+				while(!mainBoard.moveDrgn()) {}
+				mainBoard.checkDragonGlobal();
+			}
+		}
+	}
+	
+	public static void makeAMoveStaticDragon() {
 		System.out.print("(2,4,6,8 to move; 0 to quit):");
 		String input = Game.scanner.nextLine();
 		System.out.println();
@@ -40,17 +61,57 @@ public class Game {
 		{
 			if(mainBoard.getEndQ()) return;
 			mainBoard.checkDragonGlobal();
-			while(!mainBoard.moveDrgn()) {}
-			mainBoard.checkDragonGlobal();
 		}
 	}
 	
-	public static void play()
+	public static void makeAMoveMixDragon() {
+
+		System.out.print("(2,4,6,8 to move; 0 to quit):");
+		String input = Game.scanner.nextLine();
+		System.out.println();
+		if(!mainBoard.moveHero(input)) {
+			System.out.println("Invalid input!");
+			Game.scanner.nextLine();
+		}
+		else
+		{
+			boolean changeDragon = seed.nextBoolean();
+			if(changeDragon)
+			{
+				if(mainBoard.drgn.getAwake())
+				{
+					mainBoard.drgn.setAwake(false);
+				}
+				else mainBoard.drgn.setAwake(true);
+			}
+			if(mainBoard.getEndQ()) return;
+			if(mainBoard.drgn.getAlive()) {
+				mainBoard.checkDragonGlobal();
+				if(mainBoard.drgn.getAwake()) {
+					while(!mainBoard.moveDrgn()) {}
+					mainBoard.checkDragonGlobal();
+				}	
+			}
+		}
+	}
+	
+	public static void play(String drgnType)
 	{
 		mainBoard.printBoard();
 		while(!mainBoard.getEndW() && !mainBoard.getEndL())
 		{
-			makeAMove();
+			switch(drgnType)
+			{
+			case "1":
+				makeAMoveStaticDragon();
+				break;
+			case "2":
+				makeAMoveMovingDragon();
+				break;
+			case "3":
+				makeAMoveMixDragon();
+				break;
+			}
 			if(mainBoard.getEndQ()) break;
 			mainBoard.printBoard();
 		}
@@ -64,7 +125,7 @@ public class Game {
 			String input = scanner.nextLine();
 			if(input.equals("y")||input.equals("Y")) {
 				mainBoard= new Board(backupBoard);
-				play();
+				play(drgnType);
 			}
 		}
 	}
@@ -72,7 +133,7 @@ public class Game {
 	public static void dfltLvl() {
 		
 		mainBoard.createDfltBoard();
-		play();
+		play("2");
 	}
 	
 	public static void rndmLvl() {
@@ -91,7 +152,18 @@ public class Game {
 		builder.build(size);
 		mainBoard = builder.getProduct();
 		backupBoard = new Board(mainBoard);
-		play();
+		System.out.println("Please select the type of dragon movement you want: ");
+		System.out.println("[1]Static dragon\n[2]Random moving dragon\n[3]Mix moving dragon");
+		while(true)
+		{
+			input = scanner.nextLine();
+			if(input.equals("1") || input.equals("2") || input.equals("3")) break;
+			else
+			{
+				System.out.println("Invalid input!");
+			}
+		}
+		play(input);
 	}
 
 }

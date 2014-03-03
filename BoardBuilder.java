@@ -1,6 +1,5 @@
 package game;
 
-import java.util.Random;
 import java.util.Stack;
 
 public class BoardBuilder {
@@ -9,7 +8,7 @@ public class BoardBuilder {
 	private char[][] visitedCells;
 	private Stack<Coordinates> pathHistory;
 	private int guideX, guideY;
-	public Random seed = new Random();
+
 	
 	public boolean pathDone()
 	{
@@ -75,8 +74,8 @@ public class BoardBuilder {
 	
  	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
 	{
-		int borderSelect = seed.nextInt(4);
-		int cell=seed.nextInt((prod.dim-1)/2);
+		int borderSelect = Game.seed.nextInt(4);
+		int cell=Game.seed.nextInt((prod.dim-1)/2);
 		switch (borderSelect)
 		{
 		case 0: //left border
@@ -161,8 +160,8 @@ public class BoardBuilder {
 	
 	public boolean createHero()
 	{
-		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(prod.dim-2)+1;
+		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = Game.seed.nextInt(prod.dim-2)+1;
 		if(prod.tab[y][x]==' ')
 		{
 			prod.hero = new Hero(x,y);
@@ -172,8 +171,8 @@ public class BoardBuilder {
 	}
 	public boolean createDragon()
 	{
-		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(prod.dim-2)+1;
+		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = Game.seed.nextInt(prod.dim-2)+1;
 		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
 		{
 			prod.drgn = new Dragon(x,y);
@@ -184,8 +183,8 @@ public class BoardBuilder {
 	}	
 	public boolean createSword()
 	{
-		int x = seed.nextInt(prod.dim-2)+1; //[1,dim-2]
-		int y = seed.nextInt(prod.dim-2)+1;
+		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
+		int y = Game.seed.nextInt(prod.dim-2)+1;
 		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
 				&& (x!=prod.drgn.getX() || y!=prod.drgn.getY()))
 		{
@@ -213,7 +212,7 @@ public class BoardBuilder {
 			//^*/
 			if(!checkVisitedCells(guideX,guideY))
 			{
-				int dir = seed.nextInt(4);
+				int dir = Game.seed.nextInt(4);
 				switch(dir)
 				{
 				case 0: //left

@@ -1,7 +1,5 @@
 package game;
 
-import java.util.Random;
-
 public class Board{
 
 	protected int dim=10;
@@ -102,7 +100,7 @@ public class Board{
 	{
 		if(atDragon())
 		{
-			if(!hero.getHasSwrd())
+			if(!hero.getHasSwrd() && drgn.getAwake())
 			{
 				endL=true;
 				hero.setAlive(false);
@@ -168,7 +166,7 @@ public class Board{
 			endQ=true;
 			return true;
 		case "2":
-			if(tab[hero.getY()+1][hero.getX()] != 'X')
+			if(tab[hero.getY()+1][hero.getX()] != 'X' && (hero.getY()+1!=drgn.getY() || hero.getX()!=drgn.getX()))
 			{
 				if(atExit(hero.getX(),hero.getY()+1))
 				{
@@ -187,7 +185,7 @@ public class Board{
 			return false;
 			
 		case "4":
-			if(tab[hero.getY()][hero.getX()-1] != 'X')
+			if(tab[hero.getY()][hero.getX()-1] != 'X' && (hero.getY()!=drgn.getY() || hero.getX()-1!=drgn.getX()))
 			{
 				if(atExit(hero.getX()-1,hero.getY()))
 				{
@@ -205,7 +203,7 @@ public class Board{
 			}
 			return false;
 		case "6":
-			if(tab[hero.getY()][hero.getX()+1] != 'X')
+			if(tab[hero.getY()][hero.getX()+1] != 'X' && (hero.getY()!=drgn.getY() || hero.getX()+1!=drgn.getX()))
 			{
 				if(atExit(hero.getX()+1,hero.getY()))
 				{
@@ -223,7 +221,7 @@ public class Board{
 			}
 			return false;
 		case "8":
-			if(tab[hero.getY()-1][hero.getX()] != 'X')
+			if(tab[hero.getY()-1][hero.getX()] != 'X' && (hero.getY()-1!=drgn.getY() || hero.getX()!=drgn.getX()))
 			{
 				if(atExit(hero.getX(),hero.getY()-1))
 				{
@@ -245,8 +243,7 @@ public class Board{
 	}
 	public boolean moveDrgn()
 	{
-		Random dirGen = new Random();
-		int num = dirGen.nextInt(5);
+		int num = Game.seed.nextInt(5);
 		
 		switch(num)
 		{

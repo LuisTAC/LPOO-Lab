@@ -25,6 +25,7 @@ public class Dragon extends Piece{
 	}
 	public void setAlive(boolean alive)
 	{
+		if(!alive) this.setCrnts(-1,-1);
 		this.alive=alive;
 	}
 	public void setOnSwrd(boolean onSwrd) {
@@ -33,7 +34,14 @@ public class Dragon extends Piece{
 
 
 	public void setAwake(boolean awake) {
+		if(!awake)
+		{
+			setChr('d');
+		}
+		else setChr('D');
+		
 		this.awake = awake;
+
 	}
 
 }
