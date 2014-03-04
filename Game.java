@@ -41,9 +41,9 @@ public class Game {
 		else
 		{
 			if(mainBoard.getEndQ()) return;
-			if(mainBoard.drgn.getAlive()) {
-				mainBoard.checkDragonGlobal();
-				while(!mainBoard.moveDrgn()) {}
+			mainBoard.checkDragonGlobal();
+			if(mainBoard.drgns[0].getAlive()) {
+				while(!mainBoard.moveDrgn(0)) {}
 				mainBoard.checkDragonGlobal();
 			}
 		}
@@ -75,22 +75,27 @@ public class Game {
 		}
 		else
 		{
-			boolean changeDragon = seed.nextBoolean();
-			if(changeDragon)
+			for(int i =0;i<mainBoard.drgns.length;i++)
 			{
-				if(mainBoard.drgn.getAwake())
-				{
-					mainBoard.drgn.setAwake(false);
-				}
-				else mainBoard.drgn.setAwake(true);
-			}
-			if(mainBoard.getEndQ()) return;
-			if(mainBoard.drgn.getAlive()) {
 				mainBoard.checkDragonGlobal();
-				if(mainBoard.drgn.getAwake()) {
-					while(!mainBoard.moveDrgn()) {}
-					mainBoard.checkDragonGlobal();
-				}	
+				boolean changeDragon = seed.nextBoolean();
+				if(changeDragon)
+				{
+					if(mainBoard.drgns[i].getAwake())
+					{
+						mainBoard.drgns[i].setAwake(false);
+					}
+					else mainBoard.drgns[i].setAwake(true);
+				}
+				if(mainBoard.getEndQ()) return;
+				if(mainBoard.drgns[i].getAlive())
+				{
+					if(mainBoard.drgns[i].getAwake())
+					{
+						while(!mainBoard.moveDrgn(i)) {}
+						mainBoard.checkDragonGlobal();
+					}	
+				}
 			}
 		}
 	}
@@ -138,11 +143,16 @@ public class Game {
 	
 	public static void rndmLvl() {
 		
-		System.out.print("Please select the size of the board you want to play in (odd number):");
+		System.out.print("Please select the size of the board you want to play in (odd number, >=10):");
 		
 		String input = scanner.nextLine();
 		int size = Integer.parseInt(input);
 		System.out.println();
+		if(size<10)
+		{
+			System.out.println(size + " < 10. Switching to 11");
+			size=11;
+		}
 		if(size%2==0)
 		{
 			size++;

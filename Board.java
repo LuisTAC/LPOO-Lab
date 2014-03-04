@@ -5,7 +5,7 @@ public class Board{
 	protected int dim=10;
 	protected char[][] tab;
 	protected Hero hero;
-	protected Dragon drgn;
+	protected Dragon[] drgns;
 	protected Sword swrd;
 	private boolean endW=false, endL=false, endQ=false;
 	
@@ -15,7 +15,7 @@ public class Board{
 		this.dim = board.dim;
 		this.tab = board.tab.clone();
 		hero = new Hero(board.hero);
-		drgn = new Dragon(board.drgn);
+		this.setDragons(board.drgns);
 		swrd = new Sword(board.swrd);
 		this.endW = board.getEndW();
 		this.endL = board.getEndL();
@@ -34,8 +34,8 @@ public class Board{
 	public Hero getHero() {
 		return hero;
 	}
-	public Dragon getDrgn() {
-		return drgn;
+	public Dragon[] getDrgns() {
+		return drgns;
 	}
 	public Sword getSword() {
 		return swrd;
@@ -50,8 +50,12 @@ public class Board{
 	public void setHero(Hero hero) {
 		this.hero=hero;
 	}
-	public void setDragon(Dragon dragon) {
-		this.drgn=dragon;
+	public void setDragons(Dragon[] dragons) {
+		drgns = new Dragon[dragons.length];
+		for(int i = 0;i<drgns.length;i++)
+		{
+			drgns[i]= new Dragon(dragons[i]);
+		}
 	}
 	public void setSword(Sword sword) {
 		this.swrd=sword;
@@ -73,57 +77,107 @@ public class Board{
 			hero.setHasSwrd();
 		}
 	}
-	public boolean atDragon()
+	public int[] atDragon(int maxInd) //RETURNS AN ARRAY WITH INDEX OF DRAGONS NEAR HERO; IF NONE RETURNS AN ARRAY FULL OF -1
 	{
-		if(hero.getX()-1==drgn.getX() && hero.getY()==drgn.getY())
-		{
-			return true;
+		int[] res={-1,-1,-1,-1};
+		int ind=0;
+		for(int i=0;i<maxInd;i++)
+		{			
+			if(hero.getX()-1==drgns[i].getX() && hero.getY()==drgns[i].getY())
+			{
+				res[ind]=i;
+				ind++;
+			}
+			if(hero.getX()+1==drgns[i].getX() && hero.getY()==drgns[i].getY())
+			{
+				res[ind]=i;
+				ind++;
+			}
+			if(hero.getX()==drgns[i].getX() && hero.getY()-1==drgns[i].getY())
+			{
+				res[ind]=i;
+				ind++;
+			}
+			if(hero.getX()==drgns[i].getX() && hero.getY()+1==drgns[i].getY())
+			{
+				res[ind]=i;
+				ind++;
+			}
 		}
-		if(hero.getX()+1==drgn.getX() && hero.getY()==drgn.getY())
+		return res;
+	}
+	public boolean checkAtDragon(int[] drgs) //RETURNS TRUE IF THERE'S ANY DRAGON NEAR HERO
+	{
+		for(int i=0;i<drgs.length;i++)
 		{
-			return true;
+			if(drgs[i]!=-1) return true;
 		}
-		if(hero.getX()==drgn.getX() && hero.getY()-1==drgn.getY())
+		return false;
+	}
+	public boolean checkAwakeDragons(int[] drgs) //RETURNS TRUE IF THERE?S ANY AWAKE DRAGON NEAR HERO
+	{
+		for(int i=0;i<drgs.length;i++)
 		{
-			return true;
+			if(drgs[i]!=-1)
+			{
+				if(drgns[drgs[i]].getAwake()) return true;
+			}
+			else return false;
 		}
-		if(hero.getX()==drgn.getX() && hero.getY()+1==drgn.getY())
+		return false;
+	}
+	public void killDragons(int[] drgs)
+	{
+		for(int i=0;i<drgs.length;i++)
 		{
-			return true;
+			if(drgs[i]!=-1) drgns[drgs[i]].setAlive(false);
+			else break;
 		}
-		else return false;
-			
-
 	}
 	
 	public void checkDragonGlobal()
 	{
-		if(atDragon())
+		int[] indDrgns=atDragon(drgns.length);
+		if(checkAtDragon(indDrgns))
 		{
-			if(!hero.getHasSwrd() && drgn.getAwake())
+			if(!hero.getHasSwrd() && checkAwakeDragons(indDrgns))
 			{
 				endL=true;
 				hero.setAlive(false);
 			}
 			else if(hero.getHasSwrd())
 			{
-				drgn.setAlive(false);
+				killDragons(indDrgns);
 			}
 		}
-		else if(drgn.getAlive()) 
+		for(int i=0;i<drgns.length;i++)
 		{
-			//COND TO MAKE DRAGON = 'F' WHEN ON TOP OF SWORD
-			if(!drgn.getOnSwrd() && drgn.getY()==swrd.getY() && drgn.getX()==swrd.getX())
+			if(drgns[i].getAlive()) 
 			{
-				drgn.setOnSwrd(true);
-				drgn.setChr('F');
-			}
-			else if(drgn.getOnSwrd() && (drgn.getY()!=swrd.getY() || drgn.getX()!=swrd.getX()))
-			{
-				drgn.setOnSwrd(false);
-				drgn.setChr('D');
+				//COND TO MAKE DRAGON = 'F' WHEN ON TOP OF SWORD
+				if(!drgns[i].getOnSwrd() && drgns[i].getY()==swrd.getY() && drgns[i].getX()==swrd.getX())
+				{
+					if(!hero.getHasSwrd())
+					{
+						drgns[i].setOnSwrd(true);
+						drgns[i].setChr('F');
+					}
+				}
+				else if(drgns[i].getOnSwrd() && (drgns[i].getY()!=swrd.getY() || drgns[i].getX()!=swrd.getX()))
+				{
+					drgns[i].setOnSwrd(false);
+					drgns[i].setChr('D');
+				}
 			}
 		}
+	}
+	public boolean checkDragonAt(int x, int y) //CHECKS IF THERE'S A DRAGON AT GIVEN COORDINATES
+	{
+		for(int i =0;i<drgns.length;i++)
+		{
+			if(drgns[i].getX()==x && drgns[i].getY() ==y) return true;
+		}
+		return false;
 	}
 	
 	public void createDfltBoard() {
@@ -139,7 +193,8 @@ public class Board{
                 {'X',' ','X','X',' ',' ',' ',' ',' ','X'},
                 {'X','X','X','X','X','X','X','X','X','X'}};
 		hero = new Hero(1,1);
-		drgn = new Dragon(1,3);
+		drgns = new Dragon[1];
+		drgns[0]= new Dragon(1,3);
 		swrd = new Sword(1,8);
 	}
 		
@@ -149,10 +204,19 @@ public class Board{
 		{
 			for(int j=0; j<dim; j++)
 			{
-				if(drgn.getAlive() && drgn.getX()==j&&drgn.getY()==i) System.out.print(drgn.getChr());
-				else if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
-				else if(!hero.getHasSwrd() && swrd.getX()==j && swrd.getY()==i) System.out.print(swrd.getChr());
-				else System.out.print(tab[i][j]);
+				boolean drgPrint=false;
+				for(int k=0;k<drgns.length;k++)
+				{
+					if(drgns[k].getAlive() && drgns[k].getX()==j&&drgns[k].getY()==i)
+					{
+						System.out.print(drgns[k].getChr());
+						drgPrint=true;
+						break;
+					}
+				}
+				if(hero.getAlive() && hero.getX()==j && hero.getY()==i) System.out.print(hero.getChr());
+				else if(!drgPrint && !hero.getHasSwrd() && swrd.getX()==j && swrd.getY()==i) System.out.print(swrd.getChr());
+				else if(!drgPrint)System.out.print(tab[i][j]);
 			}
 			System.out.println();
 		}
@@ -166,8 +230,16 @@ public class Board{
 			endQ=true;
 			return true;
 		case "2":
-			if(tab[hero.getY()+1][hero.getX()] != 'X' && (hero.getY()+1!=drgn.getY() || hero.getX()!=drgn.getX()))
+			if(tab[hero.getY()+1][hero.getX()] != 'X')
 			{
+				for(int i=0;i<drgns.length;i++)
+				{
+					if (hero.getY()+1==drgns[i].getY() && hero.getX()==drgns[i].getX())
+					{
+						if(drgns[i].getAlive())
+							return false;
+					}
+				}
 				if(atExit(hero.getX(),hero.getY()+1))
 				{
 					if (hero.getHasSwrd())
@@ -185,8 +257,16 @@ public class Board{
 			return false;
 			
 		case "4":
-			if(tab[hero.getY()][hero.getX()-1] != 'X' && (hero.getY()!=drgn.getY() || hero.getX()-1!=drgn.getX()))
+			if(tab[hero.getY()][hero.getX()-1] != 'X')
 			{
+				for(int i=0;i<drgns.length;i++)
+				{
+					if (hero.getY()==drgns[i].getY() && hero.getX()-1==drgns[i].getX())
+					{
+						if(drgns[i].getAlive())
+							return false;
+					}
+				}
 				if(atExit(hero.getX()-1,hero.getY()))
 				{
 					if (hero.getHasSwrd())
@@ -203,8 +283,16 @@ public class Board{
 			}
 			return false;
 		case "6":
-			if(tab[hero.getY()][hero.getX()+1] != 'X' && (hero.getY()!=drgn.getY() || hero.getX()+1!=drgn.getX()))
+			if(tab[hero.getY()][hero.getX()+1] != 'X')
 			{
+				for(int i=0;i<drgns.length;i++)
+				{
+					if (hero.getY()==drgns[i].getY() && hero.getX()+1==drgns[i].getX())
+					{
+						if(drgns[i].getAlive())
+							return false;
+					}
+				}
 				if(atExit(hero.getX()+1,hero.getY()))
 				{
 					if (hero.getHasSwrd())
@@ -221,8 +309,16 @@ public class Board{
 			}
 			return false;
 		case "8":
-			if(tab[hero.getY()-1][hero.getX()] != 'X' && (hero.getY()-1!=drgn.getY() || hero.getX()!=drgn.getX()))
+			if(tab[hero.getY()-1][hero.getX()] != 'X')
 			{
+				for(int i=0;i<drgns.length;i++)
+				{
+					if (hero.getY()-1==drgns[i].getY() && hero.getX()==drgns[i].getX())
+					{
+						if(drgns[i].getAlive())
+							return false;
+					}
+				}
 				if(atExit(hero.getX(),hero.getY()-1))
 				{
 					if (hero.getHasSwrd())
@@ -241,7 +337,7 @@ public class Board{
 		default: return false;
 		}
 	}
-	public boolean moveDrgn()
+	public boolean moveDrgn(int i)
 	{
 		int num = Game.seed.nextInt(5);
 		
@@ -250,30 +346,34 @@ public class Board{
 		case 0:
 			return true;
 		case 1:
-			if(tab[drgn.getY()][drgn.getX()-1] != 'X' && tab[drgn.getY()][drgn.getX()-1] != 'S')
+			if(tab[drgns[i].getY()][drgns[i].getX()-1] != 'X' && tab[drgns[i].getY()][drgns[i].getX()-1] != 'S')
 			{
-				drgn.moveLft();
+				if(checkDragonAt(drgns[i].getX()-1,drgns[i].getY())) return false;
+				drgns[i].moveLft();
 				return true;
 			}
 			return false;
 		case 2:
-			if(tab[drgn.getY()][drgn.getX()+1] != 'X' && tab[drgn.getY()][drgn.getX()+1] != 'S')
+			if(tab[drgns[i].getY()][drgns[i].getX()+1] != 'X' && tab[drgns[i].getY()][drgns[i].getX()+1] != 'S')
 			{
-				drgn.moveRght();
+				if(checkDragonAt(drgns[i].getX()+1,drgns[i].getY())) return false;
+				drgns[i].moveRght();
 				return true;
 			}
 			return false;
 		case 3:
-			if(tab[drgn.getY()-1][drgn.getX()] != 'X' && tab[drgn.getY()-1][drgn.getX()] != 'S')
+			if(tab[drgns[i].getY()-1][drgns[i].getX()] != 'X' && tab[drgns[i].getY()-1][drgns[i].getX()] != 'S')
 			{
-				drgn.moveUp();
+				if(checkDragonAt(drgns[i].getX(),drgns[i].getY()-1)) return false;
+				drgns[i].moveUp();
 				return true;
 			}
 			return false;
 		case 4:
-			if(tab[drgn.getY()+1][drgn.getX()] != 'X' && tab[drgn.getY()+1][drgn.getX()] != 'S')
+			if(tab[drgns[i].getY()+1][drgns[i].getX()] != 'X' && tab[drgns[i].getY()+1][drgns[i].getX()] != 'S')
 			{
-				drgn.moveDwn();
+				if(checkDragonAt(drgns[i].getX(),drgns[i].getY()+1)) return false;
+				drgns[i].moveDwn();
 				return true;
 			}
 			return false;

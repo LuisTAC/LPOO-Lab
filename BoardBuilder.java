@@ -71,8 +71,18 @@ public class BoardBuilder {
 		}
 	}
 */
-	
- 	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
+/*	public void fillBlankBoard() // TODO TESTING ONLY! DELETE!
+	{
+		for(int i=1;i<prod.dim-1;i++)
+		{
+			for(int j=1;j<prod.dim-1;j++)
+			{
+				prod.tab[i][j]=' ';
+			}
+		}
+	}
+*/
+  	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
 	{
 		int borderSelect = Game.seed.nextInt(4);
 		int cell=Game.seed.nextInt((prod.dim-1)/2);
@@ -169,14 +179,20 @@ public class BoardBuilder {
 		}
 		return false;
 	}
-	public boolean createDragon()
+	public boolean createDragon(int i)
 	{
 		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
 		int y = Game.seed.nextInt(prod.dim-2)+1;
-		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
+		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
+				&& (x!=prod.swrd.getX() || y!=prod.swrd.getY()))
 		{
-			prod.drgn = new Dragon(x,y);
-			if(prod.atDragon()) return false;
+			for(int j=0;j<i;j++)
+			{
+				if(x==prod.drgns[j].getX() && y==prod.drgns[j].getY())
+					return false;
+			}
+			prod.drgns[i] = new Dragon(x,y);
+			if(prod.checkAtDragon(prod.atDragon(i+1))) return false;
 			return true;
 		}
 		return false;
@@ -185,8 +201,7 @@ public class BoardBuilder {
 	{
 		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
 		int y = Game.seed.nextInt(prod.dim-2)+1;
-		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
-				&& (x!=prod.drgn.getX() || y!=prod.drgn.getY()))
+		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
 		{
 			prod.swrd = new Sword(x,y);
 			return true;
@@ -248,9 +263,14 @@ public class BoardBuilder {
 				pathHistory.pop();
 			}
 		}
+		//fillBlankBoard();//TODO delete
 		while(!createHero()){}
-		while(!createDragon()){}
 		while(!createSword()){}
+		prod.drgns=new Dragon[(prod.dim/10)*2];
+		for(int i =0;i<prod.drgns.length;i++)
+		{
+			while(!createDragon(i)){}
+		}
 	}
 
 	public Board getProduct()

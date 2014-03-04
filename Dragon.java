@@ -10,7 +10,7 @@ public class Dragon extends Piece{
 		super('D', x, y);
 	}
 	Dragon(Dragon drg) {
-		super('D',drg.getX(),drg.getY());
+		super(drg.getChr(),drg.getX(),drg.getY());
 	}
 	
 	public boolean getAlive()
@@ -31,14 +31,12 @@ public class Dragon extends Piece{
 	public void setOnSwrd(boolean onSwrd) {
 		this.onSwrd = onSwrd;
 	}
-
-
 	public void setAwake(boolean awake) {
 		if(!awake)
 		{
-			setChr('d');
+			setChr(Character.toLowerCase(getChr()));
 		}
-		else setChr('D');
+		else setChr(Character.toUpperCase(getChr()));
 		
 		this.awake = awake;
 
