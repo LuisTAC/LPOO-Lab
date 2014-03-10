@@ -31,7 +31,7 @@ public class Game {
 	}
 
 	public static void makeAMoveMovingDragon() {
-		System.out.print("(2,4,6,8 to move; 0 to quit):");
+		System.out.print("(w,a,s,d to move; q to quit):");
 		String input = Game.scanner.nextLine();
 		System.out.println();
 		if(!mainBoard.moveHero(input)) {
@@ -50,7 +50,7 @@ public class Game {
 	}
 	
 	public static void makeAMoveStaticDragon() {
-		System.out.print("(2,4,6,8 to move; 0 to quit):");
+		System.out.print("(w,a,s,d to move; q to quit):");
 		String input = Game.scanner.nextLine();
 		System.out.println();
 		if(!mainBoard.moveHero(input)) {
@@ -66,7 +66,7 @@ public class Game {
 	
 	public static void makeAMoveMixDragon() {
 
-		System.out.print("(2,4,6,8 to move; 0 to quit):");
+		System.out.print("(w,a,s,d to move; q to quit):");
 		String input = Game.scanner.nextLine();
 		System.out.println();
 		if(!mainBoard.moveHero(input)) {

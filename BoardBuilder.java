@@ -192,7 +192,7 @@ public class BoardBuilder {
 					return false;
 			}
 			prod.drgns[i] = new Dragon(x,y);
-			if(prod.checkAtDragon(prod.atDragon(i+1))) return false;
+			if(prod.checkAtDragon(prod.atDragon(i+1,prod.hero))) return false;
 			return true;
 		}
 		return false;

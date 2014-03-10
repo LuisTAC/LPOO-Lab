@@ -7,6 +7,7 @@ public class Board{
 	protected Hero hero;
 	protected Dragon[] drgns;
 	protected Sword swrd;
+	protected Eagle eagle;
 	private boolean endW=false, endL=false, endQ=false;
 	
 	Board() {}
@@ -77,28 +78,28 @@ public class Board{
 			hero.setHasSwrd();
 		}
 	}
-	public int[] atDragon(int maxInd) //RETURNS AN ARRAY WITH INDEX OF DRAGONS NEAR HERO; IF NONE RETURNS AN ARRAY FULL OF -1
+	public int[] atDragon(int maxInd, Piece piece) //RETURNS AN ARRAY WITH INDEX OF DRAGONS NEAR PIECE(HERO OR EAGLE); IF NONE RETURNS AN ARRAY FULL OF -1
 	{
 		int[] res={-1,-1,-1,-1};
 		int ind=0;
 		for(int i=0;i<maxInd;i++)
 		{			
-			if(hero.getX()-1==drgns[i].getX() && hero.getY()==drgns[i].getY())
+			if(piece.getX()-1==drgns[i].getX() && piece.getY()==drgns[i].getY())
 			{
 				res[ind]=i;
 				ind++;
 			}
-			if(hero.getX()+1==drgns[i].getX() && hero.getY()==drgns[i].getY())
+			if(piece.getX()+1==drgns[i].getX() && piece.getY()==drgns[i].getY())
 			{
 				res[ind]=i;
 				ind++;
 			}
-			if(hero.getX()==drgns[i].getX() && hero.getY()-1==drgns[i].getY())
+			if(piece.getX()==drgns[i].getX() && piece.getY()-1==drgns[i].getY())
 			{
 				res[ind]=i;
 				ind++;
 			}
-			if(hero.getX()==drgns[i].getX() && hero.getY()+1==drgns[i].getY())
+			if(piece.getX()==drgns[i].getX() && piece.getY()+1==drgns[i].getY())
 			{
 				res[ind]=i;
 				ind++;
@@ -106,7 +107,7 @@ public class Board{
 		}
 		return res;
 	}
-	public boolean checkAtDragon(int[] drgs) //RETURNS TRUE IF THERE'S ANY DRAGON NEAR HERO
+	public boolean checkAtDragon(int[] drgs) //RETURNS TRUE IF THERE'S ANY DRAGON NEAR PIECE (CHECKS IF drgs HAS ANY INT != -1)
 	{
 		for(int i=0;i<drgs.length;i++)
 		{
@@ -114,7 +115,7 @@ public class Board{
 		}
 		return false;
 	}
-	public boolean checkAwakeDragons(int[] drgs) //RETURNS TRUE IF THERE?S ANY AWAKE DRAGON NEAR HERO
+	public boolean checkAwakeDragons(int[] drgs) //RETURNS TRUE IF THERE'S ANY AWAKE DRAGON NEAR PIECE (CHECKS IF drgs HAS ANY AWAKE DRAGON)
 	{
 		for(int i=0;i<drgs.length;i++)
 		{
@@ -137,7 +138,7 @@ public class Board{
 	
 	public void checkDragonGlobal()
 	{
-		int[] indDrgns=atDragon(drgns.length);
+		int[] indDrgns=atDragon(drgns.length, hero);
 		if(checkAtDragon(indDrgns))
 		{
 			if(!hero.getHasSwrd() && checkAwakeDragons(indDrgns))
@@ -223,13 +224,21 @@ public class Board{
 		System.out.println();
 		
 	}
-
+	
+	public void activateEagle() {
+		eagle.setActive(true);
+		eagle.setCoorHero(coorHero)
+		//TODO<----------------
+	}
 	public boolean moveHero(String dir) {
 		switch(dir) {
-		case "0":
+		case "q":
 			endQ=true;
 			return true;
-		case "2":
+		case "e":
+			activateEagle();
+			return true;
+		case "s":
 			if(tab[hero.getY()+1][hero.getX()] != 'X')
 			{
 				for(int i=0;i<drgns.length;i++)
@@ -256,7 +265,7 @@ public class Board{
 			}
 			return false;
 			
-		case "4":
+		case "a":
 			if(tab[hero.getY()][hero.getX()-1] != 'X')
 			{
 				for(int i=0;i<drgns.length;i++)
@@ -282,7 +291,7 @@ public class Board{
 				return true;
 			}
 			return false;
-		case "6":
+		case "d":
 			if(tab[hero.getY()][hero.getX()+1] != 'X')
 			{
 				for(int i=0;i<drgns.length;i++)
@@ -308,7 +317,7 @@ public class Board{
 				return true;
 			}
 			return false;
-		case "8":
+		case "w":
 			if(tab[hero.getY()-1][hero.getX()] != 'X')
 			{
 				for(int i=0;i<drgns.length;i++)
