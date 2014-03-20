@@ -1,15 +1,20 @@
-package game;
+package maze.logic;
 
 import java.util.Stack;
+
+import maze.cli.Game;
 
 public class BoardBuilder {
 
 	private Board prod = new Board();
 	private char[][] visitedCells;
-	private Stack<Coordinates> pathHistory;
+	private Stack<Coordinate> pathHistory;
 	private int guideX, guideY;
 
-	
+	public Board getProduct()
+	{
+		return prod;
+	}
 	public boolean pathDone()
 	{
 		return pathHistory.isEmpty();
@@ -23,9 +28,9 @@ public class BoardBuilder {
 			{
 				if(i%2 != 0 && j%2!=0)
 				{
-					prod.tab[i][j] = ' ';
+					prod.cells[i][j] = ' ';
 				}
-				else prod.tab[i][j] = 'X';
+				else prod.cells[i][j] = 'X';
 			}
 		}
 	}
@@ -57,31 +62,17 @@ public class BoardBuilder {
 		}
 		return true;
 	}
-/*	public void printVisitedCells() //TODO SÓ PARA TESTES! APAGAR!
-	{
-		System.out.println(" 01234567890");
-		for(int i=0;i<visitedCells.length;i++)
-		{
-			System.out.print(i);
-			for(int j=0;j<visitedCells[i].length;j++)
-			{
-				System.out.print(visitedCells[i][j]);
-			}
-			System.out.println();	
-		}
-	}
-*/
-/*	public void fillBlankBoard() // TODO TESTING ONLY! DELETE!
+	/*public void fillBlankBoard() //TODO [TESTING]
 	{
 		for(int i=1;i<prod.dim-1;i++)
 		{
 			for(int j=1;j<prod.dim-1;j++)
 			{
-				prod.tab[i][j]=' ';
+				prod.cells[i][j]=' ';
 			}
 		}
-	}
-*/
+	}*/
+
   	public void createExit() //CREATES THE EXIT IN A RANDOM BORDER AND THE "GUIDECELL" NEXT TO IT
 	{
 		int borderSelect = Game.seed.nextInt(4);
@@ -91,22 +82,22 @@ public class BoardBuilder {
 		case 0: //left border
 			guideX = 0;
 			guideY=cell;
-			prod.tab[guideY*2+1][guideX]='S';
+			prod.cells[guideY*2+1][guideX]='S';
 			break;
 		case 1: //right border
 			guideX = ((prod.dim-1)/2)-1;
 			guideY=cell;
-			prod.tab[guideY*2+1][guideX*2+2]='S';
+			prod.cells[guideY*2+1][guideX*2+2]='S';
 			break;
 		case 2: //up border
 			guideY = 0;
 			guideX=cell;
-			prod.tab[guideY][guideX*2+1]='S';
+			prod.cells[guideY][guideX*2+1]='S';
 			break;
 		case 3: //down border
 			guideY = ((prod.dim-1)/2)-1;
 			guideX=cell;
-			prod.tab[guideY*2+2][guideX*2+1]='S';
+			prod.cells[guideY*2+2][guideX*2+1]='S';
 			break;
 		default:
 			guideX=guideY=1;
@@ -115,18 +106,18 @@ public class BoardBuilder {
 		
 		visitedCells[guideY][guideX]='+';
 		
-		pathHistory = new Stack<Coordinates>();
-		pathHistory.<Coordinates>push(new Coordinates(guideX,guideY));
+		pathHistory = new Stack<Coordinate>();
+		pathHistory.<Coordinate>push(new Coordinate(guideX,guideY));
 	}
 	
 	public boolean goLeft()
 	{
 		if(visitedCells[guideY][guideX-1]!='+')
 		{
-			prod.tab[(guideY*2)+1][(guideX*2)+1-1]=' ';
+			prod.cells[(guideY*2)+1][(guideX*2)+1-1]=' ';
 			guideX--;
 			visitedCells[guideY][guideX]='+';
-			pathHistory.push(new Coordinates(guideX,guideY));
+			pathHistory.push(new Coordinate(guideX,guideY));
 			return true;
 		}
 		return false;
@@ -135,10 +126,10 @@ public class BoardBuilder {
 	{
 		if(visitedCells[guideY][guideX+1]!='+')
 		{
-			prod.tab[(guideY*2)+1][(guideX*2)+1+1]=' ';
+			prod.cells[(guideY*2)+1][(guideX*2)+1+1]=' ';
 			guideX++;
 			visitedCells[guideY][guideX]='+';
-			pathHistory.push(new Coordinates(guideX,guideY));
+			pathHistory.push(new Coordinate(guideX,guideY));
 			return true;
 		}
 		return false;
@@ -147,10 +138,10 @@ public class BoardBuilder {
 	{
 		if(visitedCells[guideY-1][guideX]!='+')
 		{
-			prod.tab[(guideY*2)+1-1][(guideX*2)+1]=' ';
+			prod.cells[(guideY*2)+1-1][(guideX*2)+1]=' ';
 			guideY--;
 			visitedCells[guideY][guideX]='+';
-			pathHistory.push(new Coordinates(guideX,guideY));
+			pathHistory.push(new Coordinate(guideX,guideY));
 			return true;
 		}
 		return false;
@@ -159,10 +150,10 @@ public class BoardBuilder {
 	{
 		if(visitedCells[guideY+1][guideX]!='+')
 		{
-			prod.tab[(guideY*2)+1+1][(guideX*2)+1]=' ';
+			prod.cells[(guideY*2)+1+1][(guideX*2)+1]=' ';
 			guideY++;
 			visitedCells[guideY][guideX]='+';
-			pathHistory.push(new Coordinates(guideX,guideY));
+			pathHistory.push(new Coordinate(guideX,guideY));
 			return true;
 		}
 		return false;
@@ -172,27 +163,24 @@ public class BoardBuilder {
 	{
 		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
 		int y = Game.seed.nextInt(prod.dim-2)+1;
-		if(prod.tab[y][x]==' ')
+		if(prod.cells[y][x]==' ')
 		{
-			prod.hero = new Hero(x,y);
+			prod.hero = new Hero(new Coordinate(x,y));
 			return true;
 		}
 		return false;
 	}
-	public boolean createDragon(int i)
-	{
+	public boolean createDragon(int i)	{
 		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
 		int y = Game.seed.nextInt(prod.dim-2)+1;
-		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
+		if(prod.cells[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY())
 				&& (x!=prod.swrd.getX() || y!=prod.swrd.getY()))
 		{
-			for(int j=0;j<i;j++)
-			{
-				if(x==prod.drgns[j].getX() && y==prod.drgns[j].getY())
-					return false;
+			for(int j=0;j<i;j++) {
+				if(prod.dragonAt(i,new Coordinate(x,y))!=-1) return false;
 			}
-			prod.drgns[i] = new Dragon(x,y);
-			if(prod.checkAtDragon(prod.atDragon(i+1,prod.hero))) return false;
+			prod.drgns[i] = new Dragon(new Coordinate(x,y));
+			if(prod.checkDragons(prod.checkDragonsAt(i+1, prod.hero.getCrds()))) return false;
 			return true;
 		}
 		return false;
@@ -201,9 +189,9 @@ public class BoardBuilder {
 	{
 		int x = Game.seed.nextInt(prod.dim-2)+1; //[1,dim-2]
 		int y = Game.seed.nextInt(prod.dim-2)+1;
-		if(prod.tab[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
+		if(prod.cells[y][x]==' ' && (x!=prod.hero.getX() || y!=prod.hero.getY()))
 		{
-			prod.swrd = new Sword(x,y);
+			prod.swrd = new Sword(new Coordinate(x,y));
 			return true;
 		}
 		return false;
@@ -212,19 +200,12 @@ public class BoardBuilder {
 	public void build(int dim) {
 		
 		prod.setDim(dim);
-		prod.tab=new char[dim][dim];
+		prod.cells=new char[dim][dim];
 		fillBoard();
 		fillVisitedCells();
 		createExit();
 		while(!pathDone())
 		{
-			/*//TODO SÓ PARA TESTES! APAGAR
-			System.out.println("X: "+guideX+" Y: "+guideY);
-			printVisitedCells();
-			System.out.println();
-			printBoard();
-			System.out.println();
-			//^*/
 			if(!checkVisitedCells(guideX,guideY))
 			{
 				int dir = Game.seed.nextInt(4);
@@ -263,18 +244,14 @@ public class BoardBuilder {
 				pathHistory.pop();
 			}
 		}
-		//fillBlankBoard();//TODO delete
+		//fillBlankBoard();//TODO [TESTING]
 		while(!createHero()){}
 		while(!createSword()){}
-		prod.drgns=new Dragon[(prod.dim/10)*2];
+		prod.drgns=new Dragon[(prod.dim/10)*2]; //TODO [TESTING] 
 		for(int i =0;i<prod.drgns.length;i++)
 		{
 			while(!createDragon(i)){}
 		}
 	}
-
-	public Board getProduct()
-	{
-		return prod;
-	}
+	
 }
