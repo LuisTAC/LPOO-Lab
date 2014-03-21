@@ -114,11 +114,6 @@ public class Game {
 	
 	//methods for moving dragon
 	
-	public static void moveDragons() {
-		for(int i=0;i<mainBoard.getDrgns().length; i++) {
-			while(!mainBoard.moveDragon(i)){}
-		}
-	}
 	
 	public static boolean makeAMoveMovingDragon() {
 		String input=getDirection();
@@ -130,7 +125,7 @@ public class Game {
 		else {
 			mainBoard.update();
 			if(mainBoard.getEndL() || mainBoard.getEndQ() || mainBoard.getEndW()) return true;
-			moveDragons();
+			mainBoard.moveDragons();
 			return true;
 		}
 	}	
@@ -161,7 +156,7 @@ public class Game {
 		else {
 			mainBoard.update();
 			if(mainBoard.getEndL() || mainBoard.getEndQ() || mainBoard.getEndW()) return true;
-			moveDragons();
+			mainBoard.moveDragons();
 			mainBoard.sleepWakeDragons();
 			return true;
 		}

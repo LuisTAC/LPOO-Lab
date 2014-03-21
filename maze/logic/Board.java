@@ -10,7 +10,7 @@ public class Board{
 	protected Hero hero;
 	protected Dragon[] drgns;
 	protected Sword swrd;
-	protected Eagle eagle=null;
+	private Eagle eagle=null;
 	private boolean endW=false, endL=false, endQ=false;
 	
 	//Constructors
@@ -26,7 +26,7 @@ public class Board{
 		this.endW = board.getEndW();
 		this.endL = board.getEndL();
 		this.endQ = board.getEndQ();
-		eagle = new Eagle(board.eagle);
+		setEagle(new Eagle(board.getEagle()));
 	}
 	
 	//Non-modifying methods
@@ -46,8 +46,14 @@ public class Board{
 	public Dragon[] getDrgns() {
 		return drgns;
 	}
+	public Dragon getDrgn(int ind) {
+		return drgns[ind];
+	}
 	public Sword getSword() {
 		return swrd;
+	}
+	public Eagle getEagle() {
+		return eagle;
 	}
 	public char[][] getTab() {
 		return cells;
@@ -56,20 +62,25 @@ public class Board{
 		return cells[crds.getY()][crds.getX()];
 	}
 	
-	public void print() {
+	public String toString() {
+		String res ="";
 		for(int i=0;i<dim;i++) {
 			for(int j=0;j<dim;j++) {
-				if(eagle!=null && eagle.isAlive() && eagleAt(new Coordinate(j,i))) System.out.print(eagle.getChr());
+				if(getEagle()!=null && getEagle().isAlive() && eagleAt(new Coordinate(j,i))) res+=(getEagle().getChr());
 				else {
 					int drgnInd=dragonAt(drgns.length, new Coordinate(j,i));
-					if(drgnInd!=-1 && drgns[drgnInd].isAlive()) System.out.print(drgns[drgnInd].getChr());
-					else if(heroAt(new Coordinate(j,i))) System.out.print(hero.getChr());
-					else if(swordAt(new Coordinate(j,i)) && !hero.hasSwrd()) System.out.print(swrd.getChr());
-					else System.out.print(getCell(new Coordinate(j,i)));
+					if(drgnInd!=-1 && drgns[drgnInd].isAlive()) res+=(drgns[drgnInd].getChr());
+					else if(heroAt(new Coordinate(j,i))) res+=(hero.getChr());
+					else if(swordAt(new Coordinate(j,i)) && !hero.hasSwrd()) res+=(swrd.getChr());
+					else res+=(getCell(new Coordinate(j,i)));
 				}
 			}
-			System.out.println();
+			res+="\n";
 		}
+		return res;
+	}
+	public void print() {
+		System.out.print(this);
 	}
 	
 	public boolean wallAt(Coordinate crds) { //RETURNS TRUE IF A GIVEN COORDINATE LINKS TO A WALL IN THE MAZE ('X' IN CELLS)
@@ -93,7 +104,7 @@ public class Board{
 		return swrd.getCrds().equals(crds);
 	}
 	public boolean eagleAt(Coordinate crds) {//RETURNS TRUE IF A GIVEN COORDINATE LINKS TO THE SWORD OF THE MAZE
-		return eagle.getCrds().equals(crds);
+		return getEagle().getCrds().equals(crds);
 	}
 	public int[] checkDragonsAt(int maxInd, Coordinate crds) { //RETURNS AN ARRAY WITH THE INDEX OF THE DRAGONS NEAR A GIVEN COORDINATE, IF NONE RETURNS AN ARRAY FULL OF -1
 		int[] res = {-1,-1,-1,-1};
@@ -152,6 +163,9 @@ public class Board{
 	public void setSword(Sword sword) {
 		this.swrd=sword;
 	}
+	public void setEagle(Eagle eagle) {
+		this.eagle = eagle;
+	}
 	
 	public void createDfltBoard() {
 		cells = new char[][]
@@ -169,19 +183,13 @@ public class Board{
 		drgns = new Dragon[1];
 		drgns[0]= new Dragon(new Coordinate(1,3));
 		swrd = new Sword(new Coordinate(1,8));
-		eagle=null;
+		setEagle(null);
 		endW=false;
 		endL=false;
 		endQ=false;
 		
 	}
 
-	public void activateEagle() {
-		eagle= new Eagle(hero.getCrds());
-		eagle.setCoorHero(new Coordinate(hero.getCrds()));
-		eagle.setCoorSwrd(new Coordinate(swrd.getCrds()));
-	}
-	
 	public boolean moveHero(String dir) {
 		switch(dir) {
 		case "w":
@@ -244,15 +252,17 @@ public class Board{
 			endQ=true;
 			return true;
 		case "e":
-			activateEagle();
-			return true;
+			if(eagle==null && !hero.hasSwrd()) {
+				activateEagle();
+				return true;
+			}
+			return false;
 		default:
 			return false;	
 		}
 	}
-	public boolean moveDragon(int indDrgn) { //MOVES THE DRAGON WITH INDEX i AND RETURNS TRUE IF THAT MOVE IS POSSIBLE
-		if(! drgns[indDrgn].isAwake()) return true;
-		int dir = Game.seed.nextInt(5);
+	
+	public boolean moveDragon(int indDrgn,int dir) { //MOVES THE DRAGON WITH INDEX indDrgn ACCORDING TO dir AND RETURNS TRUE IF THAT MOVE IS POSSIBLE
 		switch(dir) {
 		case 0: //STAY
 			return true;
@@ -261,33 +271,37 @@ public class Board{
 				drgns[indDrgn].moveUp();
 				return true;				
 			}
+			break;
 		case 2: //LEFT
 			if(!wallAt(drgns[indDrgn].getCrds().getLeft()) && !exitAt(drgns[indDrgn].getCrds().getLeft()) && dragonAt(drgns.length, drgns[indDrgn].getCrds().getLeft())==-1) {
 				drgns[indDrgn].moveLeft();
 				return true;				
 			}
+			break;
 		case 3: //DOWN
 			if(!wallAt(drgns[indDrgn].getCrds().getDown()) && !exitAt(drgns[indDrgn].getCrds().getDown()) && dragonAt(drgns.length, drgns[indDrgn].getCrds().getDown())==-1) {
 				drgns[indDrgn].moveDown();
 				return true;				
 			}
+			break;
 		case 4: //RIGHT
 			if(!wallAt(drgns[indDrgn].getCrds().getRight()) && !exitAt(drgns[indDrgn].getCrds().getRight()) && dragonAt(drgns.length, drgns[indDrgn].getCrds().getRight())==-1) {
 				drgns[indDrgn].moveRight();
 				return true;				
 			}
+			break;
 		}
 		return false;
 	}
-	public void moveEagle() {
-		if(eagle != null && eagle.isAlive()) {
-			eagle.move();
-			eagle.setOnLand(false);
-			eagle.setChr(Character.toUpperCase(eagle.getChr()));
-			if(eagle.gotSword()) swrd.setCrds(new Coordinate(eagle.getCrds()));	
+	public void moveDragons() { //GENERATES A RANDOM DIRECTION FOR EACH DRAGON TO MOVE IT
+		for(int i=0;i<drgns.length; i++) {
+			while(true){
+				if(! drgns[i].isAwake()) break;
+				int dir = Game.seed.nextInt(5);
+				if(moveDragon(i,dir)) break;
+			}
 		}
 	}
-	
 	public void killDragons(int[] indDrgns) { //KILLS THE DRAGONS WITH INDEX IN indDrgns
 		for(int i=0;i<indDrgns.length;i++) {
 			if(indDrgns[i]==-1) return;
@@ -295,23 +309,39 @@ public class Board{
 			drgns[indDrgns[i]].setAlive(false);
 		}
 	}
-	
-	public void sleepWakeDragons() { //RANDOMLY DECIDES IF A DRAGON SHOULD SWITCH AWAKE STATE
+	public void sleepWakeDragon(int indDrgn) {
+		if(drgns[indDrgn].isAwake()) {
+			drgns[indDrgn].setAwake(false);
+			drgns[indDrgn].setChr(Character.toLowerCase(drgns[indDrgn].getChr()));
+		}
+		else {
+			drgns[indDrgn].setAwake(true);
+			drgns[indDrgn].setChr(Character.toUpperCase(drgns[indDrgn].getChr()));
+		}
+	}
+	public void sleepWakeDragons() { //RANDOMLY DECIDES IF DRAGONS SHOULD SWITCH AWAKE STATE
 		for(int i=0;i<drgns.length; i++) {
 			boolean change =Game.seed.nextBoolean();
 			if(change) {
-				if(drgns[i].isAwake()) {
-					drgns[i].setAwake(false);
-					drgns[i].setChr(Character.toLowerCase(drgns[i].getChr()));
-				}
-				else {
-					drgns[i].setAwake(true);
-					drgns[i].setChr(Character.toUpperCase(drgns[i].getChr()));
-				}
+				sleepWakeDragon(i);
 			}
 		}
 	}
 	
+	public void activateEagle() {
+		setEagle(new Eagle(hero.getCrds()));
+		getEagle().setCoorHero(new Coordinate(hero.getCrds()));
+		getEagle().setCoorSwrd(new Coordinate(swrd.getCrds()));
+	}
+	public void moveEagle() {
+		if(getEagle() != null && getEagle().isAlive()) {
+			getEagle().move();
+			getEagle().setOnLand(false);
+			getEagle().setChr(Character.toUpperCase(getEagle().getChr()));
+			if(getEagle().gotSword()) swrd.setCrds(new Coordinate(getEagle().getCrds()));	
+		}
+	}
+		
 	public void update() { //UPDATES THE BOARD CHECKING DRAGONS, SWORD, EAGLE, EXIT...
 		
 		//HERO AND EXIT OR SWORD
@@ -320,7 +350,7 @@ public class Board{
 			endW=true;
 		}
 		if(swordAt(hero.getCrds())) { //HERO'S AT THE SWORD -> ARM HERO
-			if(eagle==null || !eagle.gotSword()) {
+			if(getEagle()==null || !getEagle().gotSword()) {
 				hero.setHasSwrd(true);
 				hero.setChr('A');
 				swrd.setCrds(new Coordinate(0,0));
@@ -356,44 +386,45 @@ public class Board{
 		
 		//EAGLE
 		
-		if(eagle!=null) {
+		if(getEagle()!=null) {
 			
 			//EAGLE AND SWORD
-			if(eagle.isAtSword()) { //EAGLE ON TOP OF SWORD
-				eagle.setOnLand(true);
-				eagle.setChr(Character.toLowerCase(eagle.getChr()));
-				eagle.setGotSword(true);
+			if(getEagle().isAtSword()) { //EAGLE ON TOP OF SWORD
+				getEagle().setOnLand(true);
+				getEagle().setChr(Character.toLowerCase(getEagle().getChr()));
+				getEagle().setGotSword(true);
 			}
 			//EAGLE AND 'HOME'
-			if(eagle.isAtHero() && eagle.gotSword()) { //EAGLE ON 'HOME'
-				eagle.setOnLand(true);
-				eagle.setChr(Character.toLowerCase(eagle.getChr()));
-				eagle.setReturned(true);
+			if(getEagle().isAtHero() && getEagle().gotSword()) { //EAGLE ON 'HOME'
+				getEagle().setOnLand(true);
+				getEagle().setChr(Character.toLowerCase(getEagle().getChr()));
+				getEagle().setReturned(true);
 			}
 			//EAGLE AND HERO
-			if(hero.getCrds().equals(eagle.getCrds()) && eagle.isReturned()) { //HERO IS ON EAGLE -> GET HER BACK
-				eagle.setOnLand(false);
-				eagle.setGotSword(false);
-				eagle.setAlive(false);
+			if(hero.getCrds().equals(getEagle().getCrds()) && getEagle().isReturned()) { //HERO IS ON EAGLE -> GET HER BACK
+				getEagle().setOnLand(false);
+				getEagle().setGotSword(false);
+				getEagle().setAlive(false);
 			}
 			//DRAGONS AND EAGLE
-			if(eagle.isOnLand()) {
-				int[] inddrgnsE =checkDragonsAt(drgns.length, eagle.getCrds());
+			if(getEagle().isOnLand()) {
+				int[] inddrgnsE =checkDragonsAt(drgns.length, getEagle().getCrds());
 				if(checkDragons(inddrgnsE)) { //THERE'S A DRAGON NEAR EAGLE
 					if(checkAwakeDragons(inddrgnsE)) { //THERE ARE AWAKE DRAGONS NEAR EAGLE -> KILL EAGLE
-						eagle.setAlive(false);
+						getEagle().setAlive(false);
 					}
 				}
 				else {
-					inddrgnS = dragonAt(drgns.length,eagle.getCrds());
+					inddrgnS = dragonAt(drgns.length,getEagle().getCrds());
 					if(inddrgnS!= -1 && drgns[inddrgnS].isAwake()) {
-						eagle.setAlive(false);
+						getEagle().setAlive(false);
 					}
 				}
 			}	
 		}
 		
 	}
+
 }
 
 
